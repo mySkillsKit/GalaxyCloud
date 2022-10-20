@@ -3,32 +3,46 @@ package ru.netology.galaxycloud.service.Impl;
 import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.entities.User;
+import ru.netology.galaxycloud.mapper.UserMapper;
 import ru.netology.galaxycloud.repository.UserRepository;
 import ru.netology.galaxycloud.service.UserService;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public UserDto createUser(UserDto userDto) {
+        User user = userMapper.userDtoToUser(userDto);
+        user.setCreated(LocalDateTime.now());
+        return userMapper.userToUserDto(userRepository.save(user));
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public UserDto getUserById(Long id) {
+        User userFound = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+        return userMapper.userToUserDto(userFound);
     }
 
     @Override
-    public User updateUser(User user, Long id) {
-        User userFound = getUserById(id);
-        user.setId(userFound.getId());
-        return userRepository.save(user);
+    public UserDto updateUser(UserDto userDto, Long id) {
+        User user = userMapper.userDtoToUser(userDto);
+        User updateUser = userRepository.findById(id).map(userFound -> {
+            userFound.setLogin(user.getLogin());
+            userFound.setPassword(user.getPassword());
+            userFound.setUpdated(LocalDateTime.now());
+            return userFound;
+        }).orElseThrow(() -> new NotFoundException("User not found"));
+        return userMapper.userToUserDto(userRepository.save(updateUser));
     }
 
     @Override
@@ -38,8 +52,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByLogin(String login) {
-        return userRepository.findUserByLogin(login)
+    public UserDto findUserByLogin(String login) {
+        User userFound = userRepository.findUserByLogin(login)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+        return userMapper.userToUserDto(userFound);
     }
 }
