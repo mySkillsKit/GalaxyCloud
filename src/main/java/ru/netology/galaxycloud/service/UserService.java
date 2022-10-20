@@ -1,17 +1,17 @@
 package ru.netology.galaxycloud.service;
 
-import ru.netology.galaxycloud.entities.User;
+import ru.netology.galaxycloud.dto.UserDto;
 
 public interface UserService {
 
-    User createUser(User user);
+    UserDto createUser(UserDto userDto);
 
-    User getUserById(Long id);
+    UserDto getUserById(Long id);
 
-    User updateUser(User user, Long id);
+    UserDto updateUser(UserDto userDto, Long id);
 
     void deleteUserById(Long id);
 
-    User findUserByLogin(String login);
+    UserDto findUserByLogin(String login);
 
 }
