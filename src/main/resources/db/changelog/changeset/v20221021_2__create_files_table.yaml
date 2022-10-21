@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-files #текстовый идентификатор (Обязателен)
+      author: Anatolii Vasilev # автор (Обязателен)
+      changes:
+        - createTable: # создаем новую таблицу
+            tableName: files
+            columns: # объявления колонок
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hash
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: size
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_byte
+                  type: bytea
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamp without time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: timestamp without time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: users_files_fk
+                    referencedTableName: users
+                    referencedColumnNames: id
