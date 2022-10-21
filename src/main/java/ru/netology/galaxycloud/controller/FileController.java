@@ -13,36 +13,36 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/cloud/file")
+@RequestMapping("/cloud")
 public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("/")
+    @PostMapping("/file")
     public ResponseEntity<FileDto> uploadFile(@RequestBody MultipartFile file, @RequestParam String fileName) {
         return ResponseEntity.ok()
                 .body(fileService.uploadFile(file, fileName));
     }
 
-    @GetMapping("/")
+    @GetMapping("/file")
     public ResponseEntity<FileDto> downloadFile(@RequestParam String fileName) {
         return ResponseEntity.ok()
                 .body(fileService.downloadFile(fileName));
     }
 
-    @PutMapping("/")
-    public ResponseEntity<FileDto> editFileName(@RequestParam String fileName) {
+    @PutMapping("/file")
+    public ResponseEntity<FileDto> editFileName(@RequestParam String fileName, @RequestBody String name) {
         return ResponseEntity.ok()
-                .body(fileService.editFileName(fileName));
+                .body(fileService.editFileName(fileName, name));
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("/file")
     public ResponseEntity<Void> deleteFile(@RequestParam String fileName) {
         fileService.deleteFile(fileName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/")
+    @GetMapping("/list")
     public ResponseEntity<List<FileDto>> getAllFiles(@RequestParam int limit) {
         return new ResponseEntity<>(fileService.getAllFiles(limit), HttpStatus.OK);
     }
