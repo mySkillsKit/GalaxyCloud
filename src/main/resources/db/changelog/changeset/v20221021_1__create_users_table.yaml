@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users #текстовый идентификатор (Обязателен)
+      author: Anatolii Vasilev # автор (Обязателен)
+      changes:
+        - createTable: # создаем новую таблицу
+            tableName: users
+            columns: # объявления колонок
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: login
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created
+                  type: timestamp without time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated
+                  type: timestamp without time zone
+                  defaultValue: now()
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_role
+                  type: varchar(255)
+                  defaultValue: 'USER_ROLE'
+                  constraints:
+                    nullable: false
