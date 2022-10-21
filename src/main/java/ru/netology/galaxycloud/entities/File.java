@@ -26,7 +26,7 @@ public class File {
     private String type;
 
     private String size;
-
+//@Type(type="org.hibernate.type.BinaryType")
     private byte[] fileByte;
 
     private LocalDateTime created;

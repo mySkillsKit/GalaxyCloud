@@ -12,9 +12,10 @@ public interface FileService {
 
     FileDto downloadFile(String fileName);
 
-    FileDto editFileName(String fileName);
+    FileDto editFileName(String fileName, String name);
 
     void deleteFile(String fileName);
 
     List<FileDto> getAllFiles(int limit);
+
 }
