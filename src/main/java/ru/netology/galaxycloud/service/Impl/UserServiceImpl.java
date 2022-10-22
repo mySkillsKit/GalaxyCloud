@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.entities.User;
+import ru.netology.galaxycloud.entities.UserRole;
 import ru.netology.galaxycloud.mapper.UserMapper;
 import ru.netology.galaxycloud.repository.UserRepository;
 import ru.netology.galaxycloud.service.UserService;
@@ -22,14 +23,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userDto) {
         User user = userMapper.userDtoToUser(userDto);
+        userRepository.findUserByLogin(user.getLogin())
+                .orElseThrow(() -> new NotFoundException("This User already created"));
         user.setCreated(LocalDateTime.now());
+        user.setUserRole(UserRole.USER_ROLE);
         return userMapper.userToUserDto(userRepository.save(user));
     }
 
     @Override
     public UserDto getUserById(Long id) {
-        User userFound = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User userFound = getUserFromStorage(id);
         return userMapper.userToUserDto(userFound);
     }
 
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserById(Long id) {
-        getUserById(id);
+        getUserFromStorage(id);
         userRepository.deleteById(id);
     }
 
@@ -57,4 +60,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
         return userMapper.userToUserDto(userFound);
     }
+
+    private User getUserFromStorage(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
 }
