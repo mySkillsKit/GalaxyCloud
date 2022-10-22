@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long id) {
         getUserFromStorage(id);
+        //TODO delete file
         userRepository.deleteById(id);
     }
 
