@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
         userRepository.findUserByLogin(user.getLogin())
                 .orElseThrow(() -> new NotFoundException("This User already created"));
         user.setCreated(LocalDateTime.now());
-        user.setUserRole(UserRole.USER_ROLE);
+        user.setRole(UserRole.ROLE_USER);
         return userMapper.userToUserDto(userRepository.save(user));
     }
 
@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(Long id) {
         getUserFromStorage(id);
+        //TODO delete file
         userRepository.deleteById(id);
     }
 
