@@ -27,6 +27,7 @@ public class User {
 
     private LocalDateTime updated;
 
-    //@Enumerated(EnumType.STRING)
-    private UserRole userRole;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
 }

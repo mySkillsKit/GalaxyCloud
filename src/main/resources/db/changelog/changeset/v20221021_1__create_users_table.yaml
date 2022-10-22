@@ -24,6 +24,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: role
+                  type: varchar(20)
+                  defaultValue: ROLE_USER
+                  constraints:
+                    nullable: false
+              - column:
                   name: created
                   type: timestamp without time zone
                   defaultValue: now()
@@ -32,12 +38,5 @@ databaseChangeLog:
               - column:
                   name: updated
                   type: timestamp without time zone
-                  defaultValue: now()
                   constraints:
                     nullable: true
-              - column:
-                  name: user_role
-                  type: varchar(255)
-                  defaultValue: 'USER_ROLE'
-                  constraints:
-                    nullable: false
