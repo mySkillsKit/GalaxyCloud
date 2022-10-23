@@ -1,6 +1,5 @@
 package ru.netology.galaxycloud.service.Impl;
 
-import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.FileDto;
 import ru.netology.galaxycloud.entities.File;
-import ru.netology.galaxycloud.entities.FileBody;
+import ru.netology.galaxycloud.model.FileBody;
 import ru.netology.galaxycloud.entities.User;
+import ru.netology.galaxycloud.exception.FileNotFoundException;
+import ru.netology.galaxycloud.exception.InvalidInputData;
 import ru.netology.galaxycloud.repository.FileRepository;
 import ru.netology.galaxycloud.service.FileService;
 
@@ -50,7 +51,8 @@ public class FileServiceImpl implements FileService {
         log.info("Find file in Storage by userId:{} and hash :{}", userId, hash);
         fileRepository.findFileByUserIdAndHash(userId, hash).ifPresent(
                 s -> {
-                    throw new RuntimeException("This file already uploaded");
+                    throw new InvalidInputData("This file already uploaded. " +
+                            "Please upload other file", userId);
                 });
 
         File createdFile = getBuild(file, fileName, userId, hash, fileBytes);
@@ -133,9 +135,8 @@ public class FileServiceImpl implements FileService {
 
     private void findFileNameInStorage(String fileName, Long userId) {
         fileRepository.findFileByUserIdAndFileName(userId, fileName).ifPresent(s -> {
-            throw new RuntimeException("The file with this name:{" + fileName + "} " +
-                    "was found. UserId: " + userId +
-                    "Please change the file name and try again");
+            throw new InvalidInputData("The file with this name:{" + fileName + "} " +
+                    "was found. UserId:{}. Please change the file name and try again", userId);
         });
         log.info("File not found in Storage by file name {} and ID {}",
                 fileName, userId);
@@ -144,8 +145,8 @@ public class FileServiceImpl implements FileService {
 
     private File getFileFromStorage(String fileName, Long userId) {
         return fileRepository.findFileByUserIdAndFileName(userId, fileName)
-                .orElseThrow(() -> new NotFoundException(
-                        "File not found by file name: " + fileName + " and userID: " + userId));
+                .orElseThrow(() -> new FileNotFoundException(
+                        "File not found by file name: " + fileName + " and userID", userId));
     }
 
     private File getBuild(MultipartFile file, String fileName, Long userId, String hash, byte[] fileBytes) {
@@ -176,7 +177,7 @@ public class FileServiceImpl implements FileService {
         for (byte b : md.digest()) {
             result.append(String.format("%02x", b));
         }
-        log.info("Successful Generate Checksum for fileName: {}",file.getName());
+        log.info("Successful Generate Checksum for fileName: {}", file.getName());
         return result.toString();
     }
 

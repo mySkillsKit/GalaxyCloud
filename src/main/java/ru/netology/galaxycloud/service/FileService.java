@@ -2,7 +2,7 @@ package ru.netology.galaxycloud.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.*;
-import ru.netology.galaxycloud.entities.FileBody;
+import ru.netology.galaxycloud.model.FileBody;
 
 
 import java.util.List;

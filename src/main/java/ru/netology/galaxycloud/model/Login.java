@@ -1,4 +1,4 @@
-package ru.netology.galaxycloud.entities;
+package ru.netology.galaxycloud.model;
 
 public class Login {
 
