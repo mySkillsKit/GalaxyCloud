@@ -14,7 +14,6 @@ import ru.netology.galaxycloud.exception.InvalidInputData;
 import ru.netology.galaxycloud.repository.FileRepository;
 import ru.netology.galaxycloud.service.FileService;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -43,7 +42,7 @@ public class FileServiceImpl implements FileService {
         try {
             hash = generateChecksum(file);
             fileBytes = file.getBytes();
-            log.info("Generate check sum file hash:{}", hash);
+            log.info("Get fileByte! and Generated check sum file hash:{}", hash);
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
@@ -59,28 +58,18 @@ public class FileServiceImpl implements FileService {
         log.info("Creating file and save to Storage: {}", createdFile);
 
         fileRepository.save(createdFile);
-
     }
 
-
+    @Transactional
     @Override
     public FileDto downloadFile(String fileName) {
         Long userId = 100L;
         log.info("Find file in Storage by file name {} and ID {}", fileName, userId);
         File fileFound = getFileFromStorage(fileName, userId);
-
-        log.info("Downloading file: {} from Storage.UserId: {}", fileName, userId);
-
-        String downFileName = (fileFound.getFileName() + "." + fileFound.getType()).trim();
-        try (FileOutputStream outputStream = new FileOutputStream(downFileName)) {
-            outputStream.write(fileFound.getFileByte());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        log.info("Downloaded file: {} from Storage.UserId: {}", downFileName, userId);
-
+        log.info("Downloaded file: {} from Storage. UserId: {}", fileName, userId);
         return FileDto.builder()
-                .hash(fileFound.getHash())
+                .fileName(fileFound.getFileName())
+                .type(fileFound.getType())
                 .fileByte(fileFound.getFileByte())
                 .build();
     }
@@ -102,7 +91,6 @@ public class FileServiceImpl implements FileService {
         log.info("Edited file name in Storage " +
                 "by file name {} and userID {}", fileFoundForUpdate, userId);
         fileRepository.save(fileFoundForUpdate);
-
     }
 
     @Override
@@ -140,7 +128,6 @@ public class FileServiceImpl implements FileService {
         });
         log.info("File not found in Storage by file name {} and ID {}",
                 fileName, userId);
-
     }
 
     private File getFileFromStorage(String fileName, Long userId) {

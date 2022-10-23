@@ -22,4 +22,7 @@ public class FileDto {
 
     private byte[] fileByte;
 
+    private String type;
+
+
 }

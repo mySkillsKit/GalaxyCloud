@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,8 +61,7 @@ public class FileController {
 
     @Operation(summary = "Download file from cloud")
     @ApiResponse(responseCode = "200", description = "Success download file",
-            content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                    schema = @Schema(implementation = FileDto.class))})
+            content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)})
     @ApiResponse(responseCode = "400", description = "Error input data",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @ApiResponse(responseCode = "401", description = "Unauthorized error",
@@ -72,11 +72,15 @@ public class FileController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping(value = "/file",
             produces = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<FileDto> downloadFile(@Pattern(regexp = REGEXP_NAME)
+    public ResponseEntity<byte[]> downloadFile(@Pattern(regexp = REGEXP_NAME)
                                                 @RequestParam String fileName) {
         log.info("Download file from cloud: {}", fileName);
+        FileDto fileDto = fileService.downloadFile(fileName);
         return ResponseEntity.ok()
-                .body(fileService.downloadFile(fileName));
+                .contentType(MediaType.parseMediaType(fileDto.getType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + fileName + "\"")
+                .body(fileDto.getFileByte());
     }
 
 
