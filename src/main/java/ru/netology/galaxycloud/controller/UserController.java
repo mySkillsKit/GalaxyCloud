@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.service.UserService;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @Tag(name = "User", description = "User management")
 @RequestMapping("/cloud/users")
@@ -34,6 +36,7 @@ public class UserController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @PostMapping("/create")
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        log.info("Creating new user: {}", userDto);
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.OK);
     }
 
@@ -53,6 +56,7 @@ public class UserController {
     @PutMapping("/update/{id}")
     public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto,
                                               @PathVariable Long id) {
+        log.info("Update user by ID: {} --> new data: {}", id, userDto);
         return new ResponseEntity<>(userService.updateUser(userDto, id),
                 HttpStatus.OK);
     }
@@ -72,6 +76,7 @@ public class UserController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        log.info("Get user by ID: {}", id);
         return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 
@@ -88,6 +93,7 @@ public class UserController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
+        log.info("Delete user by ID: {}", id);
         userService.deleteUserById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
