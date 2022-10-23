@@ -44,9 +44,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, Long id) {
         User user = userMapper.userDtoToUser(userDto);
         log.info("Mapped user request: {}", user);
-        findUserInStorageByLogin(user);
         User updateUser = userRepository.findById(id).map(userFound -> {
-            userFound.setLogin(user.getLogin());
             userFound.setPassword(user.getPassword());
             userFound.setUpdated(LocalDateTime.now());
             return userFound;
@@ -80,7 +78,7 @@ public class UserServiceImpl implements UserService {
         log.info("Search user in the Storage by ID: {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new UserNotFoundException("User not found by userID", 0));
+                        new UserNotFoundException("User not found by userID", id));
     }
 
     private void findUserInStorageByLogin(User user) {
