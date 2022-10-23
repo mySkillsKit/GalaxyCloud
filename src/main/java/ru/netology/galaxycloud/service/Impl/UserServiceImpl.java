@@ -1,12 +1,13 @@
 package ru.netology.galaxycloud.service.Impl;
 
-import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.entities.User;
 import ru.netology.galaxycloud.entities.UserRole;
+import ru.netology.galaxycloud.exception.InvalidInputData;
+import ru.netology.galaxycloud.exception.UserNotFoundException;
 import ru.netology.galaxycloud.mapper.UserMapper;
 import ru.netology.galaxycloud.repository.UserRepository;
 import ru.netology.galaxycloud.service.UserService;
@@ -25,10 +26,7 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         User user = userMapper.userDtoToUser(userDto);
         log.info("Mapped user request: {}", user);
-        userRepository.findUserByLogin(user.getLogin())
-                .ifPresent(s -> {
-                    throw new RuntimeException("This User already created:" + user);
-                });
+        findUserInStorageByLogin(user);
         user.setCreated(LocalDateTime.now());
         user.setRole(UserRole.ROLE_USER);
         log.info("Creating new user: {}", user);
@@ -46,15 +44,17 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, Long id) {
         User user = userMapper.userDtoToUser(userDto);
         log.info("Mapped user request: {}", user);
+        findUserInStorageByLogin(user);
         User updateUser = userRepository.findById(id).map(userFound -> {
             userFound.setLogin(user.getLogin());
             userFound.setPassword(user.getPassword());
             userFound.setUpdated(LocalDateTime.now());
             return userFound;
-        }).orElseThrow(() -> new NotFoundException("User not found by userId:" + id));
+        }).orElseThrow(() -> new UserNotFoundException("User not found by userID", id));
         log.info("Updated user by ID: {} : {} ", id, updateUser);
         return userMapper.userToUserDto(userRepository.save(updateUser));
     }
+
 
     @Override
     public void deleteUserById(Long id) {
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         log.info("Find user by Login: {}", login);
         User userFound = userRepository.findUserByLogin(login)
                 .orElseThrow(() ->
-                        new NotFoundException("User not found by login:" + login));
+                        new UserNotFoundException("User not found by login:" + login, 0));
         log.info("Found user by Login: {} --> {}", login, userFound);
         return userMapper.userToUserDto(userFound);
     }
@@ -80,7 +80,15 @@ public class UserServiceImpl implements UserService {
         log.info("Search user in the Storage by ID: {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() ->
-                        new NotFoundException("User not found by userId:" + id));
+                        new UserNotFoundException("User not found by userID", 0));
+    }
+
+    private void findUserInStorageByLogin(User user) {
+        log.info("Find user by Login: {}", user.getLogin());
+        userRepository.findUserByLogin(user.getLogin()).ifPresent(s -> {
+            throw new InvalidInputData("This User already exists in Storage." +
+                    " Change login and try again:" + user.getLogin(), 0);
+        });
     }
 
 }

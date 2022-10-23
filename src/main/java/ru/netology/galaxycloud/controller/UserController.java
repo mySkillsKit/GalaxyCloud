@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.service.UserService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @Tag(name = "User", description = "User management")
-@RequestMapping("/cloud/users")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -35,7 +38,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Error creating user",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @PostMapping("/create")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         log.info("Creating new user: {}", userDto);
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.OK);
     }
@@ -54,8 +57,8 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Error update user",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto,
-                                              @PathVariable Long id) {
+    public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto,
+                                              @NotNull @PathVariable Long id) {
         log.info("Update user by ID: {} --> new data: {}", id, userDto);
         return new ResponseEntity<>(userService.updateUser(userDto, id),
                 HttpStatus.OK);
@@ -75,7 +78,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Error getting user",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> getUserById(@NotNull @PathVariable Long id) {
         log.info("Get user by ID: {}", id);
         return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
@@ -92,7 +95,7 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Error delete user",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUserById(@NotNull @PathVariable Long id) {
         log.info("Delete user by ID: {}", id);
         userService.deleteUserById(id);
         return new ResponseEntity<>(HttpStatus.OK);
