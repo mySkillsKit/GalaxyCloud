@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  # Application frontend cloud
+  frontcloud:
+    build:
+      context: netology-diplom-frontend
+      dockerfile: Dockerfile
+    container_name: front-cloud
+    ports:
+      - "8090:8080"
+
+  # Application backend galaxycloud
+  galaxycloud:
+    container_name: galaxycloud-app
+    build: ./
+    image: galaxycloud:latest
+    restart: always
+    environment:
+      spring_datasource_url: jdbc:postgresql://postgres:5432/postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  # PostgreSQL
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+  #  PostgreSQL
+  #При запуске этого скрипта рядом с ним создастся директория pgdata,
+  # где будут располагаться файлы БД.
+
