@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface FileRepository extends JpaRepository<File, Long> {
 
-    Optional<File> findFileByHash(String hash);
+    Optional<File> findFileByUserIdAndHash(Long userId, String hash);
 
     Optional<File> findFileByUserIdAndFileName(Long userId, String fileName);
 

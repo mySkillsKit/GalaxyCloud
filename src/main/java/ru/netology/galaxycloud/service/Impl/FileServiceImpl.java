@@ -3,9 +3,12 @@ package ru.netology.galaxycloud.service.Impl;
 import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.FileDto;
 import ru.netology.galaxycloud.entities.File;
+import ru.netology.galaxycloud.entities.FileBody;
+import ru.netology.galaxycloud.entities.User;
 import ru.netology.galaxycloud.repository.FileRepository;
 import ru.netology.galaxycloud.service.FileService;
 
@@ -20,16 +23,21 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
 
+    @Transactional
     @Override
-    public FileDto uploadFile(MultipartFile file, String fileName) {
+    public void uploadFile(MultipartFile file, String fileName) {
         if (file.isEmpty()) {
             throw new NotFoundException("File not attached");
         }
         Long userId = 100L;
+
+        findFileNameInStorage(fileName, userId);
+
         String hash = null;
         byte[] fileBytes = null;
 
@@ -40,17 +48,17 @@ public class FileServiceImpl implements FileService {
             e.printStackTrace();
         }
 
-        fileRepository.findFileByHash(hash).ifPresent(
-                s -> new NotFoundException("This file already uploaded"));
+        fileRepository.findFileByUserIdAndHash(userId, hash).ifPresent(
+                s -> {
+                    throw new RuntimeException("This file already uploaded");
+                });
 
         File createdFile = getBuild(file, fileName, userId, hash, fileBytes);
         fileRepository.save(createdFile);
 
-        return FileDto.builder()
-                .hash(hash)
-                .fileByte(fileBytes)
-                .build();
     }
+
+
 
     @Override
     public FileDto downloadFile(String fileName) {
@@ -72,23 +80,21 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public FileDto editFileName(String fileName, String name) {
+    public void editFileName(String fileName, FileBody body) {
         Long userId = 100L;
         File fileFoundForUpdate = getFileFromStorage(fileName, userId);
-        fileFoundForUpdate.setFileName(name);
+        findFileNameInStorage(body.getName(), userId);
+        fileFoundForUpdate.setFileName(body.getName());
         fileFoundForUpdate.setUpdated(LocalDateTime.now());
         fileRepository.save(fileFoundForUpdate);
 
-        return FileDto.builder()
-                .fileName(name)
-                .build();
     }
 
     @Override
     public void deleteFile(String fileName) {
         Long userId = 100L;
         File fileFromStorage = getFileFromStorage(fileName, userId);
-        fileRepository.deleteFileByHash(fileFromStorage.getHash());
+        fileRepository.deleteById(fileFromStorage.getId());
     }
 
     @Override
@@ -101,6 +107,15 @@ public class FileServiceImpl implements FileService {
                         .fileName(file.getFileName())
                         .size(file.getSize())
                         .build()).collect(Collectors.toList());
+    }
+
+
+    private void findFileNameInStorage(String fileName, Long userId) {
+        fileRepository.findFileByUserIdAndFileName(userId, fileName).ifPresent(s -> {
+            throw new RuntimeException("The file with this name:{" + fileName + "} " +
+                    "has already been loaded. " +
+                    "Please change the file name and try again");
+        });
     }
 
     private File getFileFromStorage(String fileName, Long userId) {
@@ -116,7 +131,7 @@ public class FileServiceImpl implements FileService {
                 .size(String.valueOf(file.getSize()))
                 .fileByte(fileBytes)
                 .created(LocalDateTime.now())
-                .userId(userId)
+                .user(User.builder().id(userId).build())
                 .build();
     }
 

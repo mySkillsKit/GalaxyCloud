@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -29,5 +31,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL)
+    private List<File> fileList;
 
 }

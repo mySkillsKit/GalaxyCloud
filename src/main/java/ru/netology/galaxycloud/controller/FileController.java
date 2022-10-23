@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.FileDto;
+import ru.netology.galaxycloud.entities.FileBody;
 import ru.netology.galaxycloud.service.FileService;
 
 import java.util.List;
@@ -35,10 +36,10 @@ public class FileController {
     @PostMapping(value = "/file",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileDto> uploadFile(@RequestPart("file") MultipartFile file,
-                                              @RequestParam String fileName) {
-        return ResponseEntity.ok()
-                .body(fileService.uploadFile(file, fileName));
+    public ResponseEntity<Void> uploadFile(@RequestPart("file") MultipartFile file,
+                                           @RequestParam String fileName) {
+        fileService.uploadFile(file, fileName);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
@@ -73,10 +74,10 @@ public class FileController {
     @ApiResponse(responseCode = "500", description = "Error edit file name",
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @PutMapping("/file")
-    public ResponseEntity<FileDto> editFileName(@RequestParam String fileName,
-                                                @RequestBody String name) {
-        return ResponseEntity.ok()
-                .body(fileService.editFileName(fileName, name));
+    public ResponseEntity<Void> editFileName(@RequestParam String fileName,
+                                             @RequestBody FileBody body) {
+        fileService.editFileName(fileName, body);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
