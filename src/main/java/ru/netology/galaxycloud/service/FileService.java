@@ -2,17 +2,18 @@ package ru.netology.galaxycloud.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.*;
+import ru.netology.galaxycloud.entities.FileBody;
 
 
 import java.util.List;
 
 public interface FileService {
 
-    FileDto uploadFile (MultipartFile file, String fileName);
+    void uploadFile (MultipartFile file, String fileName);
 
     FileDto downloadFile(String fileName);
 
-    FileDto editFileName(String fileName, String name);
+    void editFileName(String fileName, FileBody name);
 
     void deleteFile(String fileName);
 
