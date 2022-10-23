@@ -1,11 +1,13 @@
 package ru.netology.galaxycloud.controller;
 
+import com.github.dockerjava.api.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import ru.netology.galaxycloud.service.FileService;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @Tag(name = "Cloud", description = "File management")
 @RequestMapping("/cloud")
@@ -38,6 +41,11 @@ public class FileController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadFile(@RequestPart("file") MultipartFile file,
                                            @RequestParam String fileName) {
+        log.info("Check if file is attached: {}", file.isEmpty());
+        if (file.isEmpty()) {
+            throw new NotFoundException("File not attached");
+        }
+        log.info("Upload file to server: {}", fileName);
         fileService.uploadFile(file, fileName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -58,6 +66,7 @@ public class FileController {
     @GetMapping(value = "/file",
             produces = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<FileDto> downloadFile(@RequestParam String fileName) {
+        log.info("Download file from cloud: {}", fileName);
         return ResponseEntity.ok()
                 .body(fileService.downloadFile(fileName));
     }
@@ -76,6 +85,7 @@ public class FileController {
     @PutMapping("/file")
     public ResponseEntity<Void> editFileName(@RequestParam String fileName,
                                              @RequestBody FileBody body) {
+        log.info("Edit file name: {} --> new file name: {}", fileName, body.getName());
         fileService.editFileName(fileName, body);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -93,9 +103,11 @@ public class FileController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @DeleteMapping("/file")
     public ResponseEntity<Void> deleteFile(@RequestParam String fileName) {
+        log.info("Delete file from cloud: {}", fileName);
         fileService.deleteFile(fileName);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
 
     @Operation(summary = "Get list all files")
@@ -112,6 +124,7 @@ public class FileController {
             content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping("/list")
     public ResponseEntity<List<FileDto>> getAllFiles(@RequestParam int limit) {
+        log.info("Get list all files. Limit: {}", limit);
         return new ResponseEntity<>(fileService.getAllFiles(limit), HttpStatus.OK);
     }
 
