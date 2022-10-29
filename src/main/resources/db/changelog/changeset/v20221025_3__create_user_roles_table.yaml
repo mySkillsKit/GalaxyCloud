@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-user-roles #текстовый идентификатор (Обязателен)
+      author: Anatolii Vasilev # автор (Обязателен)
+      changes:
+        - createTable: # создаем новую таблицу
+            tableName: user_roles
+            columns: # объявления колонок
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: roles
+                  type: varchar(255)
+                  defaultValue: ROLE_USER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: user_roles_fk
+                    referencedTableName: users
+                    referencedColumnNames: id

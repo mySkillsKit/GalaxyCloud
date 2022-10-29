@@ -25,5 +25,4 @@ public class UserDto {
     @NotBlank(message = "Invalid password: Must not contain only spaces")
     @Size(min = 6, max = 10, message = "Invalid login: Must be min 6 characters")
     private String password;
-
 }

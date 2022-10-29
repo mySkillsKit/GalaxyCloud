@@ -1,7 +1,12 @@
 package ru.netology.galaxycloud.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public class Login {
-
-    private String authToken;
-
+   @JsonProperty("auth-token")
+   private String authToken;
 }
