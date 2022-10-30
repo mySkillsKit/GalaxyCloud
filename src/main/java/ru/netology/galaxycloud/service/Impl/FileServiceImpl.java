@@ -38,7 +38,6 @@ public class FileServiceImpl implements FileService {
         Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find file in Storage by file name {} and ID {}", fileName, userId);
         findFileNameInStorage(fileName, userId);
-
         String hash = null;
         byte[] fileBytes = null;
         try {

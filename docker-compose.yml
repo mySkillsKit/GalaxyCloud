@@ -5,15 +5,16 @@ services:
     build:
       context: netology-diplom-frontend
       dockerfile: Dockerfile
-    container_name: front-cloud
+    container_name: frontcloud
+    image: galaxycloudfront:latest
     ports:
       - "8090:8080"
 
   # Application backend galaxycloud
   galaxycloud:
-    container_name: galaxycloud-app
+    container_name: appcloud
     build: ./
-    image: galaxycloud:latest
+    image: galaxycloudapp:latest
     restart: always
     environment:
       spring_datasource_url: jdbc:postgresql://postgres:5432/postgres
