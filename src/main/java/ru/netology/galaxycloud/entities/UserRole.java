@@ -1,8 +1,18 @@
 package ru.netology.galaxycloud.entities;
 
-public enum UserRole {
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
-    ROLE_USER,
-    ROLE_ADMIN
+@RequiredArgsConstructor
+public enum UserRole implements GrantedAuthority {
 
+    ROLE_USER ("ROLE_USER"),
+    ROLE_ADMIN("ROLE_ADMIN");
+
+    private final String value;
+
+    @Override
+    public String getAuthority() {
+        return value;
+    }
 }

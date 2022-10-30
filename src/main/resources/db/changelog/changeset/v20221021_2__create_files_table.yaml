@@ -30,7 +30,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: size
-                  type: varchar(128)
+                  type: bigint
                   constraints:
                     nullable: false
               - column:

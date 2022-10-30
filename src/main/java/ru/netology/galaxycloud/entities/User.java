@@ -29,8 +29,8 @@ public class User {
 
     private LocalDateTime updated;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @ElementCollection
+    private Set<UserRole> roles;
 
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)

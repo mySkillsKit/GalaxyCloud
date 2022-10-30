@@ -2,6 +2,7 @@ package ru.netology.galaxycloud.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.entities.User;
@@ -13,6 +14,9 @@ import ru.netology.galaxycloud.repository.UserRepository;
 import ru.netology.galaxycloud.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -20,6 +24,7 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     @Override
@@ -27,8 +32,9 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.userDtoToUser(userDto);
         log.info("Mapped user request: {}", user);
         findUserInStorageByLogin(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreated(LocalDateTime.now());
-        user.setRole(UserRole.ROLE_USER);
+        user.setRoles(Collections.singleton(UserRole.ROLE_USER));
         log.info("Creating new user: {}", user);
         return userMapper.userToUserDto(userRepository.save(user));
     }
@@ -45,7 +51,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.userDtoToUser(userDto);
         log.info("Mapped user request: {}", user);
         User updateUser = userRepository.findById(id).map(userFound -> {
-            userFound.setPassword(user.getPassword());
+            userFound.setPassword(passwordEncoder.encode(user.getPassword()));
             userFound.setUpdated(LocalDateTime.now());
             return userFound;
         }).orElseThrow(() -> new UserNotFoundException("User not found by userID", id));
@@ -53,16 +59,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.userToUserDto(userRepository.save(updateUser));
     }
 
-
     @Override
     public void deleteUserById(Long id) {
         log.info("Find user by ID: {}", id);
         getUserFromStorage(id);
         log.info("Deleted user by ID: {}", id);
         userRepository.deleteById(id);
-
     }
-
 
     @Override
     public UserDto findUserByLogin(String login) {
@@ -88,5 +91,4 @@ public class UserServiceImpl implements UserService {
                     " Change login and try again:" + user.getLogin(), 0);
         });
     }
-
 }

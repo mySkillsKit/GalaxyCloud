@@ -7,11 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.galaxycloud.dto.FileDto;
 import ru.netology.galaxycloud.entities.File;
-import ru.netology.galaxycloud.model.FileBody;
 import ru.netology.galaxycloud.entities.User;
 import ru.netology.galaxycloud.exception.FileNotFoundException;
 import ru.netology.galaxycloud.exception.InvalidInputData;
+import ru.netology.galaxycloud.model.FileBody;
 import ru.netology.galaxycloud.repository.FileRepository;
+import ru.netology.galaxycloud.security.JwtProvider;
 import ru.netology.galaxycloud.service.FileService;
 
 import java.io.IOException;
@@ -29,11 +30,12 @@ import java.util.stream.Collectors;
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     @Override
     public void uploadFile(MultipartFile file, String fileName) {
-        Long userId = 100L;
+        Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find file in Storage by file name {} and ID {}", fileName, userId);
         findFileNameInStorage(fileName, userId);
 
@@ -63,7 +65,7 @@ public class FileServiceImpl implements FileService {
     @Transactional
     @Override
     public FileDto downloadFile(String fileName) {
-        Long userId = 100L;
+        Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find file in Storage by file name {} and ID {}", fileName, userId);
         File fileFound = getFileFromStorage(fileName, userId);
         log.info("Downloaded file: {} from Storage. UserId: {}", fileName, userId);
@@ -74,10 +76,9 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
-
     @Override
     public void editFileName(String fileName, FileBody body) {
-        Long userId = 100L;
+        Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find file in Storage for edit " +
                 "by file name {} and userID {}", fileName, userId);
         File fileFoundForUpdate = getFileFromStorage(fileName, userId);
@@ -95,7 +96,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFile(String fileName) {
-        Long userId = 100L;
+        Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find file in Storage for delete" +
                 " by file name {} and userID {}", fileName, userId);
         File fileFromStorage = getFileFromStorage(fileName, userId);
@@ -106,7 +107,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<FileDto> getAllFiles(int limit) {
-        Long userId = 100L;
+        Long userId = jwtProvider.getAuthorizedUser().getId();
         log.info("Find all file in Storage " +
                 " by userID {} and limit: {}", userId, limit);
         List<File> filesByUserIdWithLimit =
@@ -119,7 +120,6 @@ public class FileServiceImpl implements FileService {
                         .size(file.getSize())
                         .build()).collect(Collectors.toList());
     }
-
 
     private void findFileNameInStorage(String fileName, Long userId) {
         fileRepository.findFileByUserIdAndFileName(userId, fileName).ifPresent(s -> {
@@ -142,7 +142,7 @@ public class FileServiceImpl implements FileService {
                 .hash(hash)
                 .fileName(fileName)
                 .type(file.getContentType())
-                .size(String.valueOf(file.getSize()))
+                .size(file.getSize())
                 .fileByte(fileBytes)
                 .created(LocalDateTime.now())
                 .user(User.builder().id(userId).build())
@@ -167,6 +167,5 @@ public class FileServiceImpl implements FileService {
         log.info("Successful Generate Checksum for fileName: {}", file.getName());
         return result.toString();
     }
-
 }
 

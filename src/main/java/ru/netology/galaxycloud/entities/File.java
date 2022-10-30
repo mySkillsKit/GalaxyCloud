@@ -25,7 +25,7 @@ public class File {
 
     private String type;
 
-    private String size;
+    private Long size;
 
     private byte[] fileByte;
 
