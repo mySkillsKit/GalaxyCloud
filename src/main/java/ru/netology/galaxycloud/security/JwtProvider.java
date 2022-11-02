@@ -14,7 +14,9 @@ import java.security.Key;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -22,6 +24,7 @@ public class JwtProvider {
 
     private final SecretKey jwtAccessSecret;
     private User authUser;
+    private final List<String> blackListAuthToken = new ArrayList<>();
 
     public User getAuthorizedUser() {
         return authUser;
@@ -53,6 +56,12 @@ public class JwtProvider {
     }
 
     private boolean validateToken(@NonNull String token, @NonNull Key secret) {
+        for (String authToken: blackListAuthToken) {
+            if (authToken.equals(token)) {
+                return false;
+            }
+        }
+
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secret)
@@ -83,5 +92,9 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public void addAuthTokenInBlackList(String authToken) {
+        blackListAuthToken.add(authToken);
     }
 }

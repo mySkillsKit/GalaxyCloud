@@ -16,6 +16,10 @@ import ru.netology.galaxycloud.dto.UserDto;
 import ru.netology.galaxycloud.model.Login;
 import ru.netology.galaxycloud.service.AuthService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
+
 @Slf4j
 @RestController
 @RequestMapping("/")
@@ -41,16 +45,23 @@ public class AuthController {
     public ResponseEntity<Login> login(@RequestBody UserDto userDto) {
         log.info("User try login : {}", userDto);
         Login token = authService.login(userDto);
-        log.info("Success login user: {}", userDto);
+        log.info("Success login user: {} auth-token {}", userDto, token.getAuthToken());
         return ResponseEntity.ok(token);
     }
 
     @Operation(summary = "Logout")
     @ApiResponse(responseCode = "200", description = "Success logout")
+    @ApiResponse(responseCode = "400", description = "Error input data",
+            content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @SecurityRequirement(name = "Bearer-token-auth")
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = "auth-token") String authToken) {
-        log.info("Success logout");
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Void> logout(@NotNull @RequestHeader(value = "auth-token") String authToken,
+                                       HttpServletRequest request, HttpServletResponse response) {
+        String logoutLoginUser = authService.logout(authToken, request, response);
+        if (logoutLoginUser != null) {
+            log.info("Success logout user login: {} auth-token: {} ", logoutLoginUser, authToken);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
