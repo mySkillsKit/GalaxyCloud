@@ -47,9 +47,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .formLogin().disable()
                 .csrf().disable()
                 .cors().and()
-                .logout().logoutSuccessUrl("http://localhost:8090/login")
-                .addLogoutHandler(new SecurityContextLogoutHandler())
-                .and()
+                .logout().disable()
                 .authorizeRequests(
                         authz -> authz
                                 .antMatchers("/", "/favicon.ico").permitAll()
